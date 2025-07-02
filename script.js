@@ -59,6 +59,8 @@ const chatInput = document.getElementById('chat-input');
 const sendChatBtn = document.getElementById('send-chat-btn');
 const closeChatBtn = document.getElementById('close-chat-btn');
 
+const gameIdInput = document.getElementById('game-id');
+
 // User profile data (mock)
 let userProfile = {
     id: 'user-shinji', // User unique ID
@@ -68,6 +70,7 @@ let userProfile = {
     preferredRole: '미드',
     playStyle: '공격적, 소통 위주',
     region: '서울 강남구',
+    gameId: '', // 게임 내 닉네임/ID
     mannerTemperature: 36.5, // Initial manner temperature (numeric)
     praisedFriends: [] // Array to store IDs of friends already praised by this user
 };
@@ -90,6 +93,9 @@ const mockFriends = [
 
 // Current matched partner (mock)
 let currentMatchedPartner = null;
+
+// 후기 작성 관련 변수
+let reviewWritten = false;
 
 // --- UI state management functions ---
 function hideAllContentSections() {
@@ -135,6 +141,7 @@ function loadProfile() {
     preferredRoleInput.value = userProfile.preferredRole;
     playStyleInput.value = userProfile.playStyle;
     regionInput.value = userProfile.region;
+    gameIdInput.value = userProfile.gameId || '';
     // Clear AI generated bio when loading profile
     aiGeneratedBioTextarea.value = '';
 }
@@ -146,6 +153,7 @@ function saveProfile() {
     userProfile.preferredRole = preferredRoleInput.value;
     userProfile.playStyle = playStyleInput.value;
     userProfile.region = regionInput.value;
+    userProfile.gameId = gameIdInput.value;
     alertMessage('프로필이 성공적으로 저장되었습니다!', 'success');
 
     const savedGameName = document.querySelector(`.dropdown-game-item[data-game-id="${userProfile.game}"]`)?.dataset.gameName || '리그 오브 레전드';
@@ -302,6 +310,7 @@ function loadRecommendedProfiles() {
         profileCard.className = 'profile-card';
         profileCard.innerHTML = `
             <p class="font-bold text-xl text-gray-900">${friend.nickname}</p>
+            <p class="text-gray-700">게임 ID: <span class="font-mono">${friend.gameId || '-'}</span></p>
             <p class="text-gray-700">게임: ${friend.game}</p>
             <p class="text-gray-700">티어: ${friend.tier}</p>
             <p class="text-gray-700">포지션: ${friend.preferredRole}</p>
@@ -311,6 +320,8 @@ function loadRecommendedProfiles() {
             <div class="flex gap-3 mt-4">
                 <button class="btn btn-secondary flex-1 chat-btn" data-friend-id="${friend.id}" data-friend-name="${friend.nickname}">채팅하기</button>
                 <button class="btn btn-primary flex-1 feedback-btn" data-friend-id="${friend.id}" ${praiseButtonState}>${praiseButtonText}</button>
+                <button class="btn btn-outline flex-1 add-friend-btn" data-friend-id="${friend.id}">친구추가</button>
+                <button class="btn btn-success flex-1 quick-match-btn" data-friend-id="${friend.id}">바로매칭</button>
             </div>
         `;
         recommendedProfileList.appendChild(profileCard);
@@ -334,6 +345,17 @@ function loadRecommendedProfiles() {
             giveFeedback(friendId, 'positive');
             event.target.disabled = true;
             event.target.textContent = '칭찬 완료';
+        });
+    });
+    // 친구추가/바로매칭 버튼 이벤트
+    document.querySelectorAll('#recommended-profile-list .add-friend-btn').forEach(button => {
+        button.addEventListener('click', (event) => {
+            alertMessage('친구 요청이 전송되었습니다!', 'success');
+        });
+    });
+    document.querySelectorAll('#recommended-profile-list .quick-match-btn').forEach(button => {
+        button.addEventListener('click', (event) => {
+            alertMessage('바로 매칭이 시작됩니다! (프로토타입)', 'info');
         });
     });
 }
@@ -401,12 +423,22 @@ function giveFeedback(targetId, type) {
             target.mannerTemperature = Math.min(40.0, target.mannerTemperature + 0.5); // Max 40 degrees Celsius
             userProfile.praisedFriends.push(targetId); // Add friend to praised list
             alertMessage(`${target.nickname}님의 매너 온도가 상승했습니다! (${target.mannerTemperature.toFixed(1)}°C)`, 'success');
+        } else if (type === 'negative') {
+            target.mannerTemperature = Math.max(30.0, target.mannerTemperature - 1.0); // Min 30 degrees Celsius
+            alertMessage(`${target.nickname}님의 매너 온도가 감소했습니다. (${target.mannerTemperature.toFixed(1)}°C)`, 'error');
         }
     }
 }
 
 // --- Match Now section ---
 function startMatching() {
+    const teamSizeSelect = document.getElementById('team-size');
+    const teamSize = parseInt(teamSizeSelect ? teamSizeSelect.value : '1', 10);
+    // 매칭 조건 값 읽기
+    const matchTier = document.getElementById('match-tier')?.value || '';
+    const matchRole = document.getElementById('match-role')?.value.trim() || '';
+    const matchRegion = document.getElementById('match-region')?.value.trim() || '';
+
     matchingStatus.classList.remove('hidden');
     matchingResult.classList.add('hidden');
     startMatchingBtn.classList.add('hidden');
@@ -416,38 +448,108 @@ function startMatching() {
         matchingResult.classList.remove('hidden');
         startMatchingBtn.classList.remove('hidden');
 
-        currentMatchedPartner = mockFriends.find(f => f.game === userProfile.game && f.tier === userProfile.tier && Math.abs(f.mannerTemperature - userProfile.mannerTemperature) < 2) ||
-                                mockFriends.find(f => f.game === userProfile.game && f.tier === userProfile.tier) ||
-                                mockFriends.find(f => f.game === userProfile.game) ||
-                                mockFriends[0];
+        // 조건에 맞는 후보 필터링
+        let candidates = mockFriends.filter(f => f.game === userProfile.game);
+        if (matchTier) candidates = candidates.filter(f => f.tier === matchTier);
+        if (matchRole) candidates = candidates.filter(f => f.preferredRole && f.preferredRole.includes(matchRole));
+        if (matchRegion) candidates = candidates.filter(f => f.region && f.region.includes(matchRegion));
 
-        const isPraisedMatched = userProfile.praisedFriends.includes(currentMatchedPartner.id);
-        const praiseButtonStateMatched = isPraisedMatched ? 'disabled' : '';
-        const praiseButtonTextMatched = isPraisedMatched ? '칭찬 완료' : '칭찬하기 (+0.5°C)';
-
-        matchedPartnerInfo.innerHTML = `
-            <p class="font-bold text-xl text-gray-900">${currentMatchedPartner.nickname}</p>
-            <p class="text-gray-700">게임: ${currentMatchedPartner.game}</p>
-            <p class="text-gray-700">티어: ${currentMatchedPartner.tier}</p>
-            <p class="text-gray-700">포지션: ${currentMatchedPartner.preferredRole}</p>
-            <p class="text-gray-700">스타일: ${currentMatchedPartner.playStyle}</p>
-            <p class="text-gray-700">지역: ${currentMatchedPartner.region}</p>
-            <p class="text-gray-700 font-semibold text-blue-600">매너 온도: ${currentMatchedPartner.mannerTemperature.toFixed(1)}°C</p>
-            <button class="btn btn-primary mt-6 w-full feedback-btn-matched" data-friend-id="${currentMatchedPartner.id}" ${praiseButtonStateMatched}>${praiseButtonTextMatched}</button>
-        `;
-        alertMessage('매칭이 완료되었습니다!', 'success');
-
-        document.querySelector('.feedback-btn-matched').addEventListener('click', (event) => {
-            const friendId = parseInt(event.target.dataset.friendId);
-            if (userProfile.praisedFriends.includes(friendId)) {
-                alertMessage('이미 칭찬한 친구입니다!', 'info');
+        if (teamSize === 1) {
+            // 1:1 매칭
+            currentMatchedPartner = candidates.find(f => f.tier === userProfile.tier && Math.abs(f.mannerTemperature - userProfile.mannerTemperature) < 2) ||
+                                    candidates.find(f => f.tier === userProfile.tier) ||
+                                    candidates[0];
+            if (!currentMatchedPartner) {
+                matchedPartnerInfo.innerHTML = `<p class="text-red-600 font-bold">조건에 맞는 파트너를 찾을 수 없습니다.</p>`;
+                alertMessage('조건에 맞는 파트너가 없습니다.', 'error');
                 return;
             }
-            giveFeedback(friendId, 'positive');
-            event.target.disabled = true;
-            event.target.textContent = '칭찬 완료';
-        });
+            const isPraisedMatched = userProfile.praisedFriends.includes(currentMatchedPartner.id);
+            const praiseButtonStateMatched = isPraisedMatched ? 'disabled' : '';
+            const praiseButtonTextMatched = isPraisedMatched ? '칭찬 완료' : '칭찬하기 (+0.5°C)';
 
+            matchedPartnerInfo.innerHTML = `
+                <p class="font-bold text-xl text-gray-900">${currentMatchedPartner.nickname}</p>
+                <p class="text-gray-700">게임: ${currentMatchedPartner.game}</p>
+                <p class="text-gray-700">티어: ${currentMatchedPartner.tier}</p>
+                <p class="text-gray-700">포지션: ${currentMatchedPartner.preferredRole}</p>
+                <p class="text-gray-700">스타일: ${currentMatchedPartner.playStyle}</p>
+                <p class="text-gray-700">지역: ${currentMatchedPartner.region}</p>
+                <p class="text-gray-700 font-semibold text-blue-600">매너 온도: ${currentMatchedPartner.mannerTemperature.toFixed(1)}°C</p>
+                <div class="flex gap-3 mt-4" id="feedback-btn-group" style="display:none;">
+                    <button class="btn btn-primary flex-1 feedback-btn-matched" data-friend-id="${currentMatchedPartner.id}">칭찬하기 (+0.5°C)</button>
+                    <button class="btn btn-danger flex-1 report-btn-matched" data-friend-id="${currentMatchedPartner.id}">비매너 신고 (-1.0°C)</button>
+                </div>
+                <div class="flex gap-3 mt-2" id="undo-btn-group" style="display:none;">
+                    <button class="btn btn-secondary flex-1 undo-feedback-btn">평가 취소</button>
+                </div>
+            `;
+        } else {
+            // 다대다(팀) 매칭
+            if (candidates.length < teamSize - 1) {
+                matchedPartnerInfo.innerHTML = `<p class="text-red-600 font-bold">조건에 맞는 팀원을 충분히 찾을 수 없습니다.</p>`;
+                alertMessage('조건에 맞는 팀원이 부족합니다.', 'error');
+                return;
+            }
+            const shuffled = [...candidates].sort(() => 0.5 - Math.random());
+            const team = [userProfile, ...shuffled.slice(0, teamSize - 1)];
+            matchedPartnerInfo.innerHTML = `
+                <p class="font-bold text-xl text-gray-900">팀 매칭 결과 (${teamSize}인 팀)</p>
+                <ul class="mt-4">
+                    ${team.map(member => `
+                        <li class="mb-2">
+                            <span class="font-semibold">${member.nickname}</span> (${member.tier || member.tier === 0 ? member.tier : ''}, ${member.preferredRole || ''}, ${member.region || ''})
+                        </li>
+                    `).join('')}
+                </ul>
+            `;
+        }
+        alertMessage('매칭이 완료되었습니다!', 'success');
+
+        // 1:1 매칭일 때만 칭찬/신고 버튼 이벤트 (채팅 후에만 활성화)
+        if (teamSize === 1 && currentMatchedPartner) {
+            // 채팅 시작 버튼 클릭 시 평가 버튼 활성화
+            startChatMatchedBtn.addEventListener('click', () => {
+                document.getElementById('feedback-btn-group').style.display = 'flex';
+            });
+            // 칭찬/신고 버튼 이벤트
+            let lastFeedback = null;
+            document.querySelector('.feedback-btn-matched').addEventListener('click', (event) => {
+                const friendId = parseInt(event.target.dataset.friendId);
+                giveFeedback(friendId, 'positive');
+                lastFeedback = { type: 'positive', friendId };
+                event.target.disabled = true;
+                document.querySelector('.report-btn-matched').disabled = true;
+                document.getElementById('undo-btn-group').style.display = 'flex';
+            });
+            document.querySelector('.report-btn-matched').addEventListener('click', (event) => {
+                const friendId = parseInt(event.target.dataset.friendId);
+                giveFeedback(friendId, 'negative');
+                lastFeedback = { type: 'negative', friendId };
+                event.target.disabled = true;
+                document.querySelector('.feedback-btn-matched').disabled = true;
+                document.getElementById('undo-btn-group').style.display = 'flex';
+            });
+            // 평가 취소 버튼 이벤트
+            document.querySelector('.undo-feedback-btn').addEventListener('click', () => {
+                if (lastFeedback) {
+                    const target = mockFriends.find(f => f.id === lastFeedback.friendId);
+                    if (lastFeedback.type === 'positive') {
+                        target.mannerTemperature = Math.max(30.0, target.mannerTemperature - 0.5);
+                        // 칭찬 취소 시 praisedFriends에서 제거
+                        userProfile.praisedFriends = userProfile.praisedFriends.filter(id => id !== lastFeedback.friendId);
+                        alertMessage(`${target.nickname}님의 칭찬이 취소되었습니다. (${target.mannerTemperature.toFixed(1)}°C)`, 'info');
+                    } else if (lastFeedback.type === 'negative') {
+                        target.mannerTemperature = Math.min(40.0, target.mannerTemperature + 1.0);
+                        alertMessage(`${target.nickname}님의 신고가 취소되었습니다. (${target.mannerTemperature.toFixed(1)}°C)`, 'info');
+                    }
+                    // 버튼 상태 복구
+                    document.querySelector('.feedback-btn-matched').disabled = false;
+                    document.querySelector('.report-btn-matched').disabled = false;
+                    document.getElementById('undo-btn-group').style.display = 'none';
+                }
+            });
+        }
     }, 3000);
 }
 

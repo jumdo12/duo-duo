@@ -90,6 +90,10 @@
                     <label for="region" class="block text-gray-700 text-lg font-medium mb-2">지역 (선택 사항)</label>
                     <input type="text" id="region" class="input-field" placeholder="예: 서울 강남구">
                 </div>
+                <div>
+                    <label for="game-id" class="block text-gray-700 text-lg font-medium mb-2">게임 ID</label>
+                    <input type="text" id="game-id" class="input-field" placeholder="게임 내 닉네임 또는 ID를 입력하세요">
+                </div>
                 
                 <!-- New AI Profile Bio Generator Feature -->
                 <div class="mt-6">
@@ -116,7 +120,33 @@
         <!-- Match Now Section -->
         <div id="match-now-section" class="hidden">
             <h2 class="section-title">지금 매칭</h2>
-            <p class="text-xl text-gray-600 text-center mb-10">당신의 프로필을 기반으로 최적의 파트너를 찾아드립니다.</p>
+            <p class="text-xl text-gray-600 text-center mb-10">당신의 프로필을 기반으로 최적의 파트너 또는 팀을 찾아드립니다.</p>
+            <!-- 매칭 조건 설정 UI -->
+            <div class="mb-6 flex flex-col md:flex-row gap-4 items-center justify-center">
+                <div>
+                    <label for="match-tier" class="block text-gray-700 text-base font-medium mb-1">티어</label>
+                    <select id="match-tier" class="input-field w-32">
+                        <option value="">전체</option>
+                        <option value="Iron">아이언</option>
+                        <option value="Bronze">브론즈</option>
+                        <option value="Silver">실버</option>
+                        <option value="Gold">골드</option>
+                        <option value="Platinum">플래티넘</option>
+                        <option value="Diamond">다이아몬드</option>
+                        <option value="Master">마스터</option>
+                        <option value="Grandmaster">그랜드마스터</option>
+                        <option value="Challenger">챌린저</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="match-role" class="block text-gray-700 text-base font-medium mb-1">포지션</label>
+                    <input type="text" id="match-role" class="input-field w-32" placeholder="예: 미드, 서포터">
+                </div>
+                <div>
+                    <label for="match-region" class="block text-gray-700 text-base font-medium mb-1">지역</label>
+                    <input type="text" id="match-region" class="input-field w-32" placeholder="예: 서울 강남구">
+                </div>
+            </div>
             <button id="start-matching-btn" class="btn btn-primary w-full">매칭 시작</button>
 
             <div id="matching-status" class="hidden mt-10 text-center">
@@ -133,6 +163,13 @@
                 <button id="start-chat-matched" class="btn btn-primary mt-10 w-full">채팅 시작</button>
             </div>
             <button id="back-to-main-from-match" class="btn btn-secondary mt-8">메인으로 돌아가기</button>
+
+            <div id="review-section" class="hidden mt-8">
+                <h3 class="text-xl font-bold mb-2">후기 남기기</h3>
+                <textarea id="review-text" class="input-field w-full h-24 mb-2" placeholder="매칭 상대에 대한 후기를 남겨주세요."></textarea>
+                <button id="submit-review-btn" class="btn btn-primary w-full">후기 등록</button>
+                <div id="review-success-msg" class="text-green-600 font-semibold mt-2 hidden">후기가 등록되었습니다!</div>
+            </div>
         </div>
 
         <!-- Game Strategy Section (New Feature) -->
