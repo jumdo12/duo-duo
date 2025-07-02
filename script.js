@@ -303,8 +303,8 @@ function loadRecommendedProfiles() {
 
     profilesToShow.forEach(friend => {
         const isPraised = userProfile.praisedFriends.includes(friend.id);
-        const praiseButtonState = isPraised ? 'disabled' : '';
-        const praiseButtonText = isPraised ? '칭찬 완료' : '칭찬하기 (+0.5°C)';
+        const praiseButtonText = isPraised ? '칭찬 취소' : '칭찬하기 (+0.5°C)';
+        const praiseButtonClass = isPraised ? 'btn-secondary' : 'btn-primary';
 
         const profileCard = document.createElement('div');
         profileCard.className = 'profile-card';
@@ -319,10 +319,9 @@ function loadRecommendedProfiles() {
             <p class="text-gray-700 font-semibold text-blue-600">매너 온도: ${friend.mannerTemperature.toFixed(1)}°C</p>
             <div class="grid grid-cols-2 gap-2 mt-4">
                 <button class="btn btn-secondary chat-btn" data-friend-id="${friend.id}" data-friend-name="${friend.nickname}">채팅하기</button>
-                <button class="btn btn-primary feedback-btn" data-friend-id="${friend.id}" ${praiseButtonState}>${praiseButtonText}</button>
+                <button class="btn ${praiseButtonClass} feedback-btn" data-friend-id="${friend.id}">${praiseButtonText}</button>
                 <button class="btn btn-outline add-friend-btn col-span-1" data-friend-id="${friend.id}">친구추가</button>
                 <button class="btn btn-success quick-match-btn col-span-1" data-friend-id="${friend.id}">바로매칭</button>
-                <button class="btn btn-secondary undo-praise-btn col-span-2 mt-1" data-friend-id="${friend.id}" style="display:${isPraised ? 'block' : 'none'}">칭찬 취소</button>
             </div>
         `;
         recommendedProfileList.appendChild(profileCard);
@@ -339,43 +338,23 @@ function loadRecommendedProfiles() {
     document.querySelectorAll('#recommended-profile-list .feedback-btn').forEach(button => {
         button.addEventListener('click', (event) => {
             const friendId = parseInt(event.target.dataset.friendId);
-            if (userProfile.praisedFriends.includes(friendId)) {
-                alertMessage('이미 칭찬한 친구입니다!', 'info');
-                return;
-            }
-            giveFeedback(friendId, 'positive');
-            event.target.disabled = true;
-            event.target.textContent = '칭찬 완료';
-            // 칭찬 취소 버튼 노출
-            const card = event.target.closest('.profile-card');
-            card.querySelector('.undo-praise-btn').style.display = 'block';
-        });
-    });
-    document.querySelectorAll('#recommended-profile-list .undo-praise-btn').forEach(button => {
-        button.addEventListener('click', (event) => {
-            const friendId = parseInt(event.target.dataset.friendId);
             const target = mockFriends.find(f => f.id === friendId);
-            if (userProfile.praisedFriends.includes(friendId)) {
+            const isPraised = userProfile.praisedFriends.includes(friendId);
+            if (!isPraised) {
+                giveFeedback(friendId, 'positive');
+                userProfile.praisedFriends.push(friendId);
+                event.target.textContent = '칭찬 취소';
+                event.target.classList.remove('btn-primary');
+                event.target.classList.add('btn-secondary');
+                alertMessage(`${target.nickname}님을 칭찬했습니다!`, 'success');
+            } else {
                 target.mannerTemperature = Math.max(30.0, target.mannerTemperature - 0.5);
                 userProfile.praisedFriends = userProfile.praisedFriends.filter(id => id !== friendId);
+                event.target.textContent = '칭찬하기 (+0.5°C)';
+                event.target.classList.remove('btn-secondary');
+                event.target.classList.add('btn-primary');
                 alertMessage(`${target.nickname}님의 칭찬이 취소되었습니다. (${target.mannerTemperature.toFixed(1)}°C)`, 'info');
-                // 버튼 상태 복구
-                const card = event.target.closest('.profile-card');
-                card.querySelector('.feedback-btn').disabled = false;
-                card.querySelector('.feedback-btn').textContent = '칭찬하기 (+0.5°C)';
-                event.target.style.display = 'none';
             }
-        });
-    });
-    // 친구추가/바로매칭 버튼 이벤트
-    document.querySelectorAll('#recommended-profile-list .add-friend-btn').forEach(button => {
-        button.addEventListener('click', (event) => {
-            alertMessage('친구 요청이 전송되었습니다!', 'success');
-        });
-    });
-    document.querySelectorAll('#recommended-profile-list .quick-match-btn').forEach(button => {
-        button.addEventListener('click', (event) => {
-            alertMessage('바로 매칭이 시작됩니다! (프로토타입)', 'info');
         });
     });
 }
@@ -392,8 +371,8 @@ function loadFriendList() {
 
     filteredFriends.forEach(friend => {
         const isPraised = userProfile.praisedFriends.includes(friend.id);
-        const praiseButtonState = isPraised ? 'disabled' : '';
-        const praiseButtonText = isPraised ? '칭찬 완료' : '칭찬하기 (+0.5°C)';
+        const praiseButtonText = isPraised ? '칭찬 취소' : '칭찬하기 (+0.5°C)';
+        const praiseButtonClass = isPraised ? 'btn-secondary' : 'btn-primary';
 
         const profileCard = document.createElement('div');
         profileCard.className = 'profile-card';
@@ -407,10 +386,9 @@ function loadFriendList() {
             <p class="text-gray-700 font-semibold text-blue-600">매너 온도: ${friend.mannerTemperature.toFixed(1)}°C</p>
             <div class="grid grid-cols-2 gap-2 mt-4">
                 <button class="btn btn-secondary chat-btn" data-friend-id="${friend.id}" data-friend-name="${friend.nickname}">채팅하기</button>
-                <button class="btn btn-primary feedback-btn" data-friend-id="${friend.id}" ${praiseButtonState}>${praiseButtonText}</button>
+                <button class="btn ${praiseButtonClass} feedback-btn" data-friend-id="${friend.id}">${praiseButtonText}</button>
                 <button class="btn btn-outline add-friend-btn col-span-1" data-friend-id="${friend.id}">친구추가</button>
                 <button class="btn btn-success quick-match-btn col-span-1" data-friend-id="${friend.id}">바로매칭</button>
-                <button class="btn btn-secondary undo-praise-btn col-span-2 mt-1" data-friend-id="${friend.id}" style="display:${isPraised ? 'block' : 'none'}">칭찬 취소</button>
             </div>
         `;
         friendList.appendChild(profileCard);
@@ -427,43 +405,23 @@ function loadFriendList() {
     document.querySelectorAll('#friend-list .feedback-btn').forEach(button => {
         button.addEventListener('click', (event) => {
             const friendId = parseInt(event.target.dataset.friendId);
-            if (userProfile.praisedFriends.includes(friendId)) {
-                alertMessage('이미 칭찬한 친구입니다!', 'info');
-                return;
-            }
-            giveFeedback(friendId, 'positive');
-            event.target.disabled = true;
-            event.target.textContent = '칭찬 완료';
-            // 칭찬 취소 버튼 노출
-            const card = event.target.closest('.profile-card');
-            card.querySelector('.undo-praise-btn').style.display = 'block';
-        });
-    });
-    document.querySelectorAll('#friend-list .undo-praise-btn').forEach(button => {
-        button.addEventListener('click', (event) => {
-            const friendId = parseInt(event.target.dataset.friendId);
             const target = mockFriends.find(f => f.id === friendId);
-            if (userProfile.praisedFriends.includes(friendId)) {
+            const isPraised = userProfile.praisedFriends.includes(friendId);
+            if (!isPraised) {
+                giveFeedback(friendId, 'positive');
+                userProfile.praisedFriends.push(friendId);
+                event.target.textContent = '칭찬 취소';
+                event.target.classList.remove('btn-primary');
+                event.target.classList.add('btn-secondary');
+                alertMessage(`${target.nickname}님을 칭찬했습니다!`, 'success');
+            } else {
                 target.mannerTemperature = Math.max(30.0, target.mannerTemperature - 0.5);
                 userProfile.praisedFriends = userProfile.praisedFriends.filter(id => id !== friendId);
+                event.target.textContent = '칭찬하기 (+0.5°C)';
+                event.target.classList.remove('btn-secondary');
+                event.target.classList.add('btn-primary');
                 alertMessage(`${target.nickname}님의 칭찬이 취소되었습니다. (${target.mannerTemperature.toFixed(1)}°C)`, 'info');
-                // 버튼 상태 복구
-                const card = event.target.closest('.profile-card');
-                card.querySelector('.feedback-btn').disabled = false;
-                card.querySelector('.feedback-btn').textContent = '칭찬하기 (+0.5°C)';
-                event.target.style.display = 'none';
             }
-        });
-    });
-    // 친구추가/바로매칭 버튼 이벤트
-    document.querySelectorAll('#friend-list .add-friend-btn').forEach(button => {
-        button.addEventListener('click', (event) => {
-            alertMessage('친구 요청이 전송되었습니다!', 'success');
-        });
-    });
-    document.querySelectorAll('#friend-list .quick-match-btn').forEach(button => {
-        button.addEventListener('click', (event) => {
-            alertMessage('바로 매칭이 시작됩니다! (프로토타입)', 'info');
         });
     });
 }
