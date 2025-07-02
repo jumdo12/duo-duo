@@ -476,8 +476,8 @@ function startMatching() {
                 return;
             }
             const isPraisedMatched = userProfile.praisedFriends.includes(currentMatchedPartner.id);
-            const praiseButtonStateMatched = isPraisedMatched ? 'disabled' : '';
-            const praiseButtonTextMatched = isPraisedMatched ? '칭찬 완료' : '칭찬하기 (+0.5°C)';
+            const praiseButtonTextMatched = isPraisedMatched ? '칭찬 취소' : '칭찬하기 (+0.5°C)';
+            const praiseButtonClassMatched = isPraisedMatched ? 'btn-secondary' : 'btn-primary';
 
             matchedPartnerInfo.innerHTML = `
                 <p class="font-bold text-xl text-gray-900">${currentMatchedPartner.nickname}</p>
@@ -488,11 +488,8 @@ function startMatching() {
                 <p class="text-gray-700">지역: ${currentMatchedPartner.region}</p>
                 <p class="text-gray-700 font-semibold text-blue-600">매너 온도: ${currentMatchedPartner.mannerTemperature.toFixed(1)}°C</p>
                 <div class="flex gap-3 mt-4" id="feedback-btn-group" style="display:none;">
-                    <button class="btn btn-primary flex-1 feedback-btn-matched" data-friend-id="${currentMatchedPartner.id}">칭찬하기 (+0.5°C)</button>
+                    <button class="btn ${praiseButtonClassMatched} flex-1 feedback-btn-matched" data-friend-id="${currentMatchedPartner.id}">${praiseButtonTextMatched}</button>
                     <button class="btn btn-danger flex-1 report-btn-matched" data-friend-id="${currentMatchedPartner.id}">비매너 신고 (-1.0°C)</button>
-                </div>
-                <div class="flex gap-3 mt-2" id="undo-btn-group" style="display:none;">
-                    <button class="btn btn-secondary flex-1 undo-feedback-btn">평가 취소</button>
                 </div>
             `;
         } else {
@@ -519,46 +516,35 @@ function startMatching() {
 
         // 1:1 매칭일 때만 칭찬/신고 버튼 이벤트 (채팅 후에만 활성화)
         if (teamSize === 1 && currentMatchedPartner) {
-            // 채팅 시작 버튼 클릭 시 평가 버튼 활성화
             startChatMatchedBtn.addEventListener('click', () => {
                 document.getElementById('feedback-btn-group').style.display = 'flex';
             });
-            // 칭찬/신고 버튼 이벤트
-            let lastFeedback = null;
+            // 칭찬/신고 버튼 이벤트 (토글)
             document.querySelector('.feedback-btn-matched').addEventListener('click', (event) => {
                 const friendId = parseInt(event.target.dataset.friendId);
-                giveFeedback(friendId, 'positive');
-                lastFeedback = { type: 'positive', friendId };
-                event.target.disabled = true;
-                document.querySelector('.report-btn-matched').disabled = true;
-                document.getElementById('undo-btn-group').style.display = 'flex';
+                const target = mockFriends.find(f => f.id === friendId);
+                const isPraised = userProfile.praisedFriends.includes(friendId);
+                if (!isPraised) {
+                    giveFeedback(friendId, 'positive');
+                    userProfile.praisedFriends.push(friendId);
+                    event.target.textContent = '칭찬 취소';
+                    event.target.classList.remove('btn-primary');
+                    event.target.classList.add('btn-secondary');
+                    alertMessage(`${target.nickname}님을 칭찬했습니다!`, 'success');
+                } else {
+                    target.mannerTemperature = Math.max(30.0, target.mannerTemperature - 0.5);
+                    userProfile.praisedFriends = userProfile.praisedFriends.filter(id => id !== friendId);
+                    event.target.textContent = '칭찬하기 (+0.5°C)';
+                    event.target.classList.remove('btn-secondary');
+                    event.target.classList.add('btn-primary');
+                    alertMessage(`${target.nickname}님의 칭찬이 취소되었습니다. (${target.mannerTemperature.toFixed(1)}°C)`, 'info');
+                }
             });
             document.querySelector('.report-btn-matched').addEventListener('click', (event) => {
                 const friendId = parseInt(event.target.dataset.friendId);
                 giveFeedback(friendId, 'negative');
-                lastFeedback = { type: 'negative', friendId };
                 event.target.disabled = true;
                 document.querySelector('.feedback-btn-matched').disabled = true;
-                document.getElementById('undo-btn-group').style.display = 'flex';
-            });
-            // 평가 취소 버튼 이벤트
-            document.querySelector('.undo-feedback-btn').addEventListener('click', () => {
-                if (lastFeedback) {
-                    const target = mockFriends.find(f => f.id === lastFeedback.friendId);
-                    if (lastFeedback.type === 'positive') {
-                        target.mannerTemperature = Math.max(30.0, target.mannerTemperature - 0.5);
-                        // 칭찬 취소 시 praisedFriends에서 제거
-                        userProfile.praisedFriends = userProfile.praisedFriends.filter(id => id !== lastFeedback.friendId);
-                        alertMessage(`${target.nickname}님의 칭찬이 취소되었습니다. (${target.mannerTemperature.toFixed(1)}°C)`, 'info');
-                    } else if (lastFeedback.type === 'negative') {
-                        target.mannerTemperature = Math.min(40.0, target.mannerTemperature + 1.0);
-                        alertMessage(`${target.nickname}님의 신고가 취소되었습니다. (${target.mannerTemperature.toFixed(1)}°C)`, 'info');
-                    }
-                    // 버튼 상태 복구
-                    document.querySelector('.feedback-btn-matched').disabled = false;
-                    document.querySelector('.report-btn-matched').disabled = false;
-                    document.getElementById('undo-btn-group').style.display = 'none';
-                }
             });
         }
     }, 3000);
