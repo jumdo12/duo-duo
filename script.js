@@ -317,11 +317,12 @@ function loadRecommendedProfiles() {
             <p class="text-gray-700">스타일: ${friend.playStyle}</p>
             <p class="text-gray-700">지역: ${friend.region}</p>
             <p class="text-gray-700 font-semibold text-blue-600">매너 온도: ${friend.mannerTemperature.toFixed(1)}°C</p>
-            <div class="flex gap-3 mt-4">
-                <button class="btn btn-secondary flex-1 chat-btn" data-friend-id="${friend.id}" data-friend-name="${friend.nickname}">채팅하기</button>
-                <button class="btn btn-primary flex-1 feedback-btn" data-friend-id="${friend.id}" ${praiseButtonState}>${praiseButtonText}</button>
-                <button class="btn btn-outline flex-1 add-friend-btn" data-friend-id="${friend.id}">친구추가</button>
-                <button class="btn btn-success flex-1 quick-match-btn" data-friend-id="${friend.id}">바로매칭</button>
+            <div class="grid grid-cols-2 gap-2 mt-4">
+                <button class="btn btn-secondary chat-btn" data-friend-id="${friend.id}" data-friend-name="${friend.nickname}">채팅하기</button>
+                <button class="btn btn-primary feedback-btn" data-friend-id="${friend.id}" ${praiseButtonState}>${praiseButtonText}</button>
+                <button class="btn btn-outline add-friend-btn col-span-1" data-friend-id="${friend.id}">친구추가</button>
+                <button class="btn btn-success quick-match-btn col-span-1" data-friend-id="${friend.id}">바로매칭</button>
+                <button class="btn btn-secondary undo-praise-btn col-span-2 mt-1" data-friend-id="${friend.id}" style="display:${isPraised ? 'block' : 'none'}">칭찬 취소</button>
             </div>
         `;
         recommendedProfileList.appendChild(profileCard);
@@ -345,6 +346,25 @@ function loadRecommendedProfiles() {
             giveFeedback(friendId, 'positive');
             event.target.disabled = true;
             event.target.textContent = '칭찬 완료';
+            // 칭찬 취소 버튼 노출
+            const card = event.target.closest('.profile-card');
+            card.querySelector('.undo-praise-btn').style.display = 'block';
+        });
+    });
+    document.querySelectorAll('#recommended-profile-list .undo-praise-btn').forEach(button => {
+        button.addEventListener('click', (event) => {
+            const friendId = parseInt(event.target.dataset.friendId);
+            const target = mockFriends.find(f => f.id === friendId);
+            if (userProfile.praisedFriends.includes(friendId)) {
+                target.mannerTemperature = Math.max(30.0, target.mannerTemperature - 0.5);
+                userProfile.praisedFriends = userProfile.praisedFriends.filter(id => id !== friendId);
+                alertMessage(`${target.nickname}님의 칭찬이 취소되었습니다. (${target.mannerTemperature.toFixed(1)}°C)`, 'info');
+                // 버튼 상태 복구
+                const card = event.target.closest('.profile-card');
+                card.querySelector('.feedback-btn').disabled = false;
+                card.querySelector('.feedback-btn').textContent = '칭찬하기 (+0.5°C)';
+                event.target.style.display = 'none';
+            }
         });
     });
     // 친구추가/바로매칭 버튼 이벤트
