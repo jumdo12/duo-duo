@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>듀오해듀오 - 커뮤니티</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet">
+    <script src="script.js"></script> <!-- script.js를 먼저 로드 -->
+</head>
+<body>
+    <header class="site-header">
+        <div class="container">
+            <h1 class="logo">듀오해듀오</h1>
+            <nav class="main-nav">
+                <a href="index.html">홈</a>
+                <a href="#" class="active">커뮤니티</a>
+                <a href="#" id="lol-search-link-community">롤 전적검색</a>
+                <a href="#" id="my-profile-link-community">내 프로필</a>
+            </nav>
+            <button class="login-btn" id="login-btn-community">로그인</button>
+        </div>
+    </header>
+
+    <main class="container" style="padding-top: 40px;">
+        <section id="community-list-section" class="community-section">
+            <h2>커뮤니티 (아고라)</h2>
+            <button id="write-post-btn" class="action-btn primary-action" style="width: 100%; margin-bottom: 20px;">글쓰기</button>
+            <div id="community-post-list" class="community-post-list" style="border: 1px solid var(--border-color); border-radius: 8px; overflow: hidden;">
+                <!-- Posts will be loaded here by script -->
+            </div>
+            <p style="text-align: center; margin-top: 20px; font-size: 0.9em; color: var(--subtle-text-color);">더 많은 게시글은 개발 중입니다.</p>
+        </section>
+
+        <section id="write-post-section" class="community-section" style="display: none;">
+            <h2>새 글 작성</h2>
+            <form id="post-write-form">
+                <div style="margin-bottom: 15px;">
+                    <label for="post-title" style="display: block; margin-bottom: 5px;">제목</label>
+                    <input type="text" id="post-title" placeholder="제목을 입력하세요" style="width: 100%; padding: 10px; border: 1px solid var(--border-color); border-radius: 5px;">
+                </div>
+                <div style="margin-bottom: 15px;">
+                    <label for="post-author" style="display: block; margin-bottom: 5px;">작성자</label>
+                    <input type="text" id="post-author" placeholder="작성자를 입력하세요" style="width: 100%; padding: 10px; border: 1px solid var(--border-color); border-radius: 5px;">
+                </div>
+                <div style="margin-bottom: 20px;">
+                    <label for="post-content" style="display: block; margin-bottom: 5px;">내용</label>
+                    <textarea id="post-content" placeholder="내용을 입력하세요" rows="10" style="width: 100%; padding: 10px; border: 1px solid var(--border-color); border-radius: 5px; resize: vertical;"></textarea>
+                </div>
+                <button type="submit" class="action-btn primary-action" style="width: 100%;">작성 완료</button>
+                <button type="button" id="cancel-write-btn" class="action-btn secondary-action" style="width: 100%; margin-top: 10px;">취소</button>
+            </form>
+        </section>
+
+        <section id="post-detail-section" class="community-section" style="display: none;">
+            <h2 id="detail-title"></h2>
+            <p style="font-size: 0.9em; color: var(--subtle-text-color);">작성자: <span id="detail-author"></span> | <span id="detail-date"></span></p>
+            <div id="detail-content" style="margin-top: 20px; padding: 15px; border: 1px solid var(--border-color); border-radius: 8px; background-color: var(--background-color); min-height: 100px;"></div>
+            <button id="back-to-list-btn" class="action-btn primary-action" style="width: 100%; margin-top: 20px;">목록으로 돌아가기</button>
+        </section>
+    </main>
+
+    <div id="modal" class="modal-container" style="display: none;">
+        <div class="modal-content">
+            <button class="modal-close-btn">&times;</button>
+            <div id="modal-body">
+                <!-- Modal content will be populated by script.js -->
+            </div>
+        </div>
+    </div>
+
+    <div id="modal" class="modal-container" style="display: none;">
+        <div class="modal-content">
+            <button class="modal-close-btn">&times;</button>
+            <div id="modal-body">
+                <!-- Modal content will be populated by script.js -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const communityPostList = document.getElementById('community-post-list');
+            const writePostBtn = document.getElementById('write-post-btn');
+            const cancelWriteBtn = document.getElementById('cancel-write-btn');
+            const postWriteForm = document.getElementById('post-write-form');
+            const communityListSection = document.getElementById('community-list-section');
+            const writePostSection = document.getElementById('write-post-section');
+            const postDetailSection = document.getElementById('post-detail-section');
+            const backToListBtn = document.getElementById('back-to-list-btn');
+
+            // Mock data for community posts
+            const mockCommunityPosts = [
+                { id: 1, title: '같이 듀오하실 분 구해요! (골드 원딜)', author: '듀오장인', date: '2024-07-03', content: '안녕하세요, 골드 원딜 유저입니다. 저녁에 같이 듀오하실 분 구해요! 매너 좋으신 분 환영합니다.' },
+                { id: 2, title: '매너온도 올리는 꿀팁 공유합니다.', author: '매너왕', date: '2024-07-02', content: '매너온도 올리는 가장 좋은 방법은 칭찬을 많이 하는 것입니다. 게임 끝나고 팀원들에게 칭찬 한마디씩 해주세요!' },
+                { id: 3, title: '새로운 챔피언 추천 받아요!', author: '뉴비유저', date: '2024-07-01', content: '최근에 롤 시작한 뉴비입니다. 쉽고 재밌는 챔피언 추천해주시면 감사하겠습니다! 포지션은 상관없어요.' },
+                { id: 4, title: '티어 올리는 비법 전수합니다.', author: '챌린저꿈나무', date: '2024-06-30', content: '티어 올리는 비법은 바로 꾸준함과 피드백입니다. 자신의 플레이를 녹화해서 다시 보고, 부족한 점을 개선해나가세요!' },
+                { id: 5, title: '같이 칼바람 하실 분?', author: '칼바람장인', date: '2024-06-29', content: '칼바람 나락에서 즐겜하실 분 구합니다. 승패 상관없이 재밌게 하실 분이면 좋아요!' },
+            ];
+
+            // Function to render post list
+            const renderPostList = () => {
+                communityPostList.innerHTML = '';
+                mockCommunityPosts.forEach(post => {
+                    const postItem = document.createElement('div');
+                    postItem.className = 'community-post-item';
+                    postItem.style.cssText = 'padding: 15px; border-bottom: 1px solid var(--border-color); cursor: pointer;';
+                    postItem.innerHTML = `
+                        <h4 style="margin: 0; color: var(--text-color);">${post.title}</h4>
+                        <p style="margin: 5px 0 0; font-size: 0.9em; color: var(--subtle-text-color);">작성자: ${post.author} | ${post.date}</p>
+                    `;
+                    postItem.addEventListener('click', () => showPostDetail(post));
+                    communityPostList.appendChild(postItem);
+                });
+            };
+
+            // Function to show write post form
+            writePostBtn.addEventListener('click', () => {
+                communityListSection.style.display = 'none';
+                postDetailSection.style.display = 'none';
+                writePostSection.style.display = 'block';
+            });
+
+            // Function to cancel writing post
+            cancelWriteBtn.addEventListener('click', () => {
+                writePostSection.style.display = 'none';
+                communityListSection.style.display = 'block';
+                postWriteForm.reset(); // Clear form fields
+            });
+
+            // Function to handle post submission
+            postWriteForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const title = document.getElementById('post-title').value;
+                const author = document.getElementById('post-author').value;
+                const content = document.getElementById('post-content').value;
+                const newId = mockCommunityPosts.length > 0 ? Math.max(...mockCommunityPosts.map(p => p.id)) + 1 : 1;
+                const newDate = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
+
+                const newPost = { id: newId, title, author, date: newDate, content };
+                mockCommunityPosts.unshift(newPost); // Add to the beginning
+
+                alert('게시글이 성공적으로 작성되었습니다!');
+                postWriteForm.reset();
+                writePostSection.style.display = 'none';
+                communityListSection.style.display = 'block';
+                renderPostList(); // Re-render list with new post
+            });
+
+            // Function to show post detail
+            const showPostDetail = (post) => {
+                communityListSection.style.display = 'none';
+                writePostSection.style.display = 'none';
+                postDetailSection.style.display = 'block';
+
+                document.getElementById('detail-title').textContent = post.title;
+                document.getElementById('detail-author').textContent = post.author;
+                document.getElementById('detail-date').textContent = post.date;
+                document.getElementById('detail-content').textContent = post.content;
+            };
+
+            // Back to list button
+            backToListBtn.addEventListener('click', () => {
+                postDetailSection.style.display = 'none';
+                communityListSection.style.display = 'block';
+            });
+
+            // Initial render of posts
+            renderPostList();
+
+            // Event listeners for header navigation (using global functions from script.js)
+            // These elements are now correctly referenced by ID and will call global functions
+            document.getElementById('lol-search-link-community').addEventListener('click', (e) => { e.preventDefault(); showLoLSearchModal(); });
+            document.getElementById('my-profile-link-community').addEventListener('click', (e) => { e.preventDefault(); showMyProfileModal(); });
+            document.getElementById('login-btn-community').addEventListener('click', (e) => { e.preventDefault(); showLoginModal(); });
+
+            // Update login button state on page load
+            updateLoginButtonState();
+        });
+    </script>
+</body>
+</html>
