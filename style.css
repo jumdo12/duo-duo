@@ -1,378 +1,271 @@
+:root {
+    --primary-color: #007BFF; /* 시원하고 신뢰감 있는 파란색 */
+    --primary-color-dark: #0056b3; /* Primary color for darker states */
+    --primary-gradient-start: #007BFF;
+    --primary-gradient-end: #0056b3;
+    --secondary-color: #FFD700; /* 눈에 띄는 금색/노란색 */
+    --background-color: #F8F9FA; /* 부드러운 회색 배경 */
+    --surface-color: #FFFFFF; /* 카드 및 모달 배경 */
+    --text-color: #212529; /* 기본 텍스트 */
+    --subtle-text-color: #6C757D; /* 보조 텍스트 */
+    --border-color: #DEE2E6; /* 경계선 */
+    --success-color: #28A745; /* 성공/긍정 (매너온도) */
+    --danger-color: #DC3545; /* 위험/부정 */
+    --font-family: 'Noto Sans KR', sans-serif;
+    --border-radius: 12px;
+    --shadow-sm: 0 2px 4px rgba(0,0,0,0.05);
+    --shadow-md: 0 4px 12px rgba(0,0,0,0.1);
+    --shadow-lg: 0 8px 25px rgba(0,0,0,0.15);
+}
+
 body {
-    font-family: 'Inter', sans-serif;
-    background-color: #f0f2f5; /* Light gray background for Fmkorea feel */
-    display: flex;
-    justify-content: center;
-    align-items: flex-start; /* Align to top */
-    min-height: 100vh;
-    padding: 30px; /* Increased padding */
-    padding-top: 100px; /* Add padding to prevent content from going under fixed header/tabs */
-    box-sizing: border-box;
-    position: relative; /* For fixed positioning context */
+    font-family: var(--font-family);
+    background-color: var(--background-color);
+    color: var(--text-color);
+    margin: 0;
 }
+
 .container {
-    background-color: #ffffff; /* White container background */
-    border-radius: 28px; /* Even more rounded corners */
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08); /* Softer, lighter shadow for light theme */
-    width: 100%;
-    max-width: 1100px; /* Increased max-width for larger PC screens */
-    padding: 50px; /* Increased padding */
-    box-sizing: border-box;
-    display: flex;
-    flex-direction: column;
-    gap: 35px; /* Increased spacing */
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 0 20px;
 }
-.btn {
-    padding: 18px 35px; /* Increased padding */
-    border-radius: 16px; /* More rounded corners */
-    font-weight: 700; /* Adjusted font weight for Inter */
+
+/* Header */
+.site-header {
+    background-color: var(--surface-color);
+    padding: 1rem 0;
+    border-bottom: 1px solid var(--border-color);
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    box-shadow: var(--shadow-sm);
+}
+
+.site-header .container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.logo {
+    font-size: 1.8rem;
+    font-weight: 900;
+    color: var(--primary-color);
+    margin: 0;
+}
+
+.main-nav a {
+    margin: 0 15px;
+    text-decoration: none;
+    color: var(--subtle-text-color);
+    font-weight: 500;
+    transition: color 0.2s;
+}
+
+.main-nav a:hover {
+    color: var(--primary-color);
+}
+
+/* General Button Styles */
+button, .action-btn {
+    padding: 12px 25px;
+    font-size: 1rem;
+    font-weight: 700;
+    border-radius: var(--border-radius);
+    border: none;
     cursor: pointer;
-    transition: all 0.3s ease; /* All transition effects */
-    text-align: center;
-    font-size: 1.2rem; /* Increased font size */
-    letter-spacing: 0.7px; /* Added letter spacing */
-    position: relative;
-    overflow: hidden;
-    z-index: 1; /* Ensure button content is above ::before */
-}
-.btn::before {
-    content: '';
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    width: 300%;
-    height: 300%;
-    background: rgba(0, 0, 0, 0.1); /* Darker ripple for light theme */
-    border-radius: 50%;
-    transition: all 0.75s ease-out;
-    transform: translate(-50%, -50%) scale(0);
-    opacity: 0;
-    z-index: -1; /* Place behind button content */
-}
-.btn:hover::before {
-    transform: translate(-50%, -50%) scale(1);
-    opacity: 1;
-}
-.btn-primary {
-    background-color: #007bff; /* Fmkorea blue for primary actions */
-    color: white;
-    box-shadow: 0 8px 20px rgba(0, 123, 255, 0.3); /* Shadow matching new primary color */
-}
-.btn-primary:hover {
-    background-color: #0056b3; /* Darker blue on hover */
-    transform: translateY(-5px);
-    box-shadow: 0 12px 25px rgba(0, 123, 255, 0.4);
-}
-.btn-secondary {
-    background-color: #f8f9fa; /* Light gray for secondary */
-    color: #007bff; /* Fmkorea blue text for contrast */
-    border: 1px solid #dee2e6; /* Lighter border */
-    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.08);
-}
-.btn-secondary:hover {
-    background-color: #e2e6ea; /* Slightly darker secondary on hover */
-    transform: translateY(-3px);
-    box-shadow: 0 5px 12px rgba(0, 0, 0, 0.12);
-}
-.btn:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-    transform: none;
-    box-shadow: none;
-}
-.btn:disabled::before {
-    display: none;
-}
-.input-field {
-    width: 100%;
-    padding: 15px 20px; /* Increased padding */
-    background-color: #ffffff; /* White input field background */
-    color: #333333; /* Dark text color */
-    border: 1px solid #ced4da; /* Lighter border color */
-    border-radius: 12px; /* More rounded corners */
-    font-size: 1.05rem;
-    box-sizing: border-box;
     transition: all 0.3s ease;
+    box-shadow: var(--shadow-sm);
 }
-.input-field:focus {
-    outline: none;
-    border-color: #007bff; /* Focus color matching new primary */
-    box-shadow: 0 0 0 5px rgba(0, 123, 255, 0.25); /* Smoother focus effect */
+
+button:hover, .action-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
 }
+
+button:active, .action-btn:active {
+    transform: translateY(0);
+    box-shadow: var(--shadow-sm);
+}
+
+.login-btn {
+    background-color: var(--primary-color);
+    color: #fff;
+}
+
+.login-btn:hover {
+    background-color: var(--primary-color-dark);
+}
+
+.primary-action {
+    background-color: var(--primary-color);
+    color: #fff;
+    border: none;
+}
+
+.primary-action:hover {
+    background-color: var(--primary-color-dark);
+}
+
+.secondary-action {
+    background-color: var(--surface-color);
+    color: var(--primary-color);
+    border: 2px solid var(--primary-color);
+}
+
+.secondary-action:hover {
+    background-color: var(--primary-color);
+    color: #fff;
+}
+
+/* Hero Section */
+.hero-section {
+    text-align: center;
+    padding: 80px 0;
+    background: linear-gradient(135deg, #E0F7FA 0%, #B3E5FC 100%);
+}
+
+.hero-section h2 {
+    font-size: 1.5rem;
+    font-weight: 500;
+    color: var(--subtle-text-color);
+}
+
+.hero-section h1 {
+    font-size: 3.5rem;
+    font-weight: 900;
+    margin: 10px 0 20px;
+    color: var(--primary-color);
+}
+
+.hero-section p {
+    font-size: 1.2rem;
+    color: var(--text-color);
+    margin-bottom: 40px;
+}
+
+.main-actions .action-btn {
+    padding: 18px 35px;
+    font-size: 1.2rem;
+    font-weight: 700;
+    border-radius: var(--border-radius);
+    border: none;
+    cursor: pointer;
+    margin: 0 10px;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.main-actions .action-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-lg);
+}
+
+/* Featured Players */
+.featured-players-section {
+    padding: 60px 0;
+}
+
 .section-title {
-    font-size: 2.5rem; /* Increased title size */
-    font-weight: 800; /* Adjusted font weight for Inter */
-    color: #333333; /* Dark gray for titles */
-    margin-bottom: 35px; /* Increased margin */
-    text-align: left; /* Left-aligned for Fmkorea feel */
-    position: relative;
-}
-.section-title::after {
-    content: '';
-    display: block;
-    width: 80px; /* Wider underline */
-    height: 5px; /* Thicker underline */
-    background-color: #007bff; /* Solid blue underline */
-    margin: 15px 0 0; /* Left-aligned underline */
-    border-radius: 3px;
-}
-.profile-card {
-    background-color: #ffffff; /* White background for cards */
-    border-radius: 20px; /* More rounded corners */
-    padding: 30px; /* Increased padding */
-    border: 1px solid #e9ecef; /* Very light border */
-    display: flex;
-    flex-direction: column;
-    gap: 15px; /* Increased spacing */
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08); /* Lighter shadow */
-    color: #333333; /* Dark text color for card content */
-}
-.profile-card:hover {
-    transform: translateY(-7px);
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
-}
-.profile-card p {
-    color: #333333; /* Ensure text inside card is dark */
-}
-.profile-card .font-bold {
-    color: #1a1a1a; /* Make nicknames stand out */
-}
-.profile-card .text-blue-600 { /* Manner temperature color */
-    color: #007bff; /* Vibrant blue for emphasis */
+    font-size: 2rem;
+    font-weight: 700;
+    text-align: center;
+    margin-bottom: 40px;
 }
 
-.chat-message {
-    background-color: #e9ecef; /* Light gray for other messages */
-    padding: 14px 20px; /* Increased padding */
-    border-radius: 25px; /* More rounded corners */
-    max-width: 85%; /* Slightly wider chat bubbles */
-    margin-bottom: 15px;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
-    color: #333333; /* Dark text color */
+.player-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 25px;
 }
-.chat-message.user {
-    background-color: #007bff; /* Solid blue for user messages */
-    color: white;
-    align-self: flex-end;
+
+.player-card {
+    background-color: var(--surface-color);
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow-sm);
+    padding: 20px;
+    text-align: center;
+    transition: transform 0.2s, box-shadow 0.2s;
+    cursor: pointer;
 }
-.chat-message.other {
-    align-self: flex-start;
+
+.player-card:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--shadow-md);
 }
-.loading-spinner {
-    border: 6px solid rgba(0, 0, 0, 0.1); /* Increased thickness */
-    border-left-color: #007bff; /* Color matching new primary */
+
+.player-profile-img {
+    width: 80px;
+    height: 80px;
     border-radius: 50%;
-    width: 60px; /* Increased size */
-    height: 60px; /* Increased size */
-    animation: spin 1s linear infinite;
-    margin: 40px auto;
-}
-@keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
-}
-/* Hidden class for sections */
-.hidden {
-    display: none;
+    object-fit: cover;
+    border: 3px solid var(--primary-color);
+    margin-bottom: 10px;
 }
 
-.game-tab-container {
+/* Modal */
+.modal-container {
     position: fixed;
     top: 0;
     left: 0;
     width: 100%;
-    background-color: #ffffff; /* White background for the tabs bar */
-    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1); /* Lighter shadow */
-    z-index: 1000; /* Ensure it's on top */
-    padding: 15px 30px; /* Padding for the tab bar */
-    display: flex;
-    justify-content: space-between; /* Align items to ends */
-    align-items: center; /* Vertically center */
-    border-bottom-left-radius: 20px; /* Rounded bottom corners */
-    border-bottom-right-radius: 20px;
-}
-
-.header-title {
-    font-family: 'Inter', sans-serif;
-    font-weight: 900; /* Very bold */
-    font-size: 2.5rem; /* Large size */
-    color: #007bff; /* Vibrant blue color */
-    letter-spacing: -1px; /* Tighten for logo feel */
-    margin-right: auto; /* Push game dropdown to the right */
-}
-
-/* Styling for the "게임 선택" button (now the main game tab button) */
-.game-select-btn {
-    padding: 12px 25px;
-    border-radius: 12px;
-    font-weight: 600; /* Adjusted font weight for Inter */
-    cursor: pointer;
-    transition: all 0.3s ease;
-    background-color: #f8f9fa; /* Light gray background */
-    color: #333333; /* Dark text color */
-    border: 1px solid #ced4da; /* Lighter border */
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-    position: relative; /* For dropdown positioning */
-}
-.game-select-btn:hover {
-    background-color: #e9ecef; /* Slightly darker on hover */
-    color: #007bff; /* Vibrant blue text on hover */
-    transform: translateY(-2px);
-}
-
-/* Styles for the dropdown menu */
-.game-dropdown-menu {
-    position: absolute;
-    top: calc(100% + 10px); /* Position below the button with some gap */
-    right: 0; /* Align to the right of the parent */
-    background-color: #ffffff; /* White background for dropdown */
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
-    border-radius: 12px;
-    padding: 10px;
-    min-width: 180px;
-    z-index: 1001; /* Ensure it's above other elements */
-    opacity: 0;
-    pointer-events: none; /* Make it non-interactive when hidden */
-    transform: translateY(-10px);
-    transition: opacity 0.3s ease, transform 0.3s ease;
-}
-
-.game-dropdown-menu.visible {
-    opacity: 1;
-    pointer-events: all;
-    transform: translateY(0);
-}
-
-.dropdown-game-item {
-    display: block;
-    width: 100%;
-    padding: 10px 20px;
-    text-align: left;
-    font-weight: 600;
-    color: #333333; /* Dark text color */
-    background-color: transparent;
-    border: none;
-    cursor: pointer;
-    transition: background-color 0.2s ease, color 0.2s ease;
-    border-radius: 8px; /* Slightly rounded for dropdown items */
-}
-
-.dropdown-game-item:hover {
-    background-color: #e9ecef; /* Light gray on hover */
-    color: #007bff; /* Vibrant blue text on hover */
-}
-
-.dropdown-game-item.active {
-    background-color: #007bff; /* Active item is solid blue */
-    color: white;
-}
-
-/* New styles for main section tabs */
-.main-section-tab-container {
+    height: 100%;
+    background-color: rgba(0,0,0,0.6);
     display: flex;
     justify-content: center;
-    gap: 12px; /* Smaller gap for main tabs */
-    background-color: #e9ecef; /* Light background for the tab bar */
-    padding: 10px;
-    border-radius: 18px; /* Rounded corners */
-    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.05); /* Inner shadow for depth */
-    margin-bottom: 40px; /* Space below tabs */
+    align-items: center;
+    z-index: 2000;
 }
-.main-section-tab-btn {
-    flex: 1; /* Distribute space evenly */
-    padding: 14px 20px;
-    border-radius: 14px; /* Rounded buttons */
-    font-weight: 600; /* Adjusted font weight for Inter */
-    cursor: pointer;
-    transition: all 0.3s ease;
-    text-align: center;
-    font-size: 1.1rem;
-    color: #333333; /* Dark text color */
-    background-color: transparent; /* Transparent by default */
+
+.modal-content {
+    background-color: var(--surface-color);
+    padding: 30px;
+    border-radius: var(--border-radius);
+    width: 90%;
+    max-width: 500px;
+    position: relative;
+}
+
+.modal-close-btn {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    background: none;
     border: none;
-}
-.main-section-tab-btn:hover {
-    background-color: #dee2e6; /* Darker on hover */
-    color: #007bff; /* Vibrant blue text on hover */
-    transform: translateY(-2px);
-}
-.main-section-tab-btn.active {
-    background-color: #007bff; /* Active tab is solid blue */
-    color: white;
-    box-shadow: 0 3px 8px rgba(0, 123, 255, 0.25);
-    transform: translateY(-2px);
-}
-
-/* Styles for top-level navigation tabs (e.g., My Profile, My Chat History) */
-.top-nav-tab {
-    padding: 12px 20px; /* Slightly smaller padding than main tabs */
-    border-radius: 12px;
-    font-weight: 600;
+    font-size: 1.8rem;
     cursor: pointer;
-    transition: all 0.3s ease;
-    text-align: center;
-    font-size: 1.05rem;
-    color: #333333; /* Dark text color */
-    background-color: transparent;
-    border: none;
-    margin-left: 10px; /* Space between top nav items */
-}
-.top-nav-tab:hover {
-    background-color: #f8f9fa; /* Light gray on hover */
-    color: #007bff;
-    transform: translateY(-2px);
-}
-.top-nav-tab.active {
-    background-color: #007bff;
-    color: white;
-    box-shadow: 0 3px 8px rgba(0, 123, 255, 0.25);
-    transform: translateY(-2px);
+    color: var(--subtle-text-color);
 }
 
-
-.alert-message {
-    background-color: #007bff; /* Default color changed to primary blue */
-    padding: 18px 30px; /* Increased padding */
-    border-radius: 14px;
-    font-weight: 600; /* Adjusted font weight for Inter */
-    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.2);
-    transition: all 0.4s ease;
-    transform: translateY(100%);
-    opacity: 0;
-    color: white; /* Ensure text is white */
-}
-.alert-message.success {
-    background-color: #28a745; /* Green for success */
-}
-.alert-message.error {
-    background-color: #dc3545; /* Red for error */
-}
-.alert-message.info {
-    background-color: #007bff; /* New primary blue */
+/* Spinner */
+.spinner {
+    border: 4px solid rgba(0, 0, 0, 0.1);
+    border-left-color: var(--primary-color);
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    animation: spin 1s linear infinite;
+    margin: 20px auto;
 }
 
-/* Specific font weight adjustments for Inter */
-h1 {
-    font-weight: 900; /* Very bold for main title */
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
 }
-.section-title {
-    font-weight: 800; /* Bold for section titles */
+
+/* Input field styles for consistency */
+input[type="text"], input[type="password"], select {
+    padding: 10px 15px;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    font-size: 1rem;
+    width: calc(100% - 30px); /* Adjust for padding */
+    box-sizing: border-box;
+    margin-bottom: 15px;
 }
-p, label, input, select, textarea {
-    font-weight: 400; /* Default text is normal weight */
-    color: #333333; /* Ensure all default text is dark for light theme */
+
+input[type="text"]:focus, input[type="password"]:focus, select:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25);
 }
-/* Override specific text colors where needed for contrast */
-.text-gray-900 {
-    color: #333333; /* Dark for very dark text */
-}
-.text-gray-700 {
-    color: #555555; /* Slightly lighter gray for general text */
-}
-.text-gray-600 {
-    color: #777777; /* Even lighter gray for secondary text */
-}
-.text-gray-500 {
-    color: #999999; /* For placeholder/muted text */
-} 

@@ -3,231 +3,59 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>듀오해듀오</title>
-    <!-- Tailwind CSS CDN -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Google Fonts - Inter (original font) -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
-    <!-- External CSS file -->
+    <title>듀오해듀오 - 새로운 게임 친구를 만나보세요</title>
     <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet">
+    <script src="https://kit.fontawesome.com/your-fontawesome-kit.js" crossorigin="anonymous"></script> <!-- Font Awesome 추가 -->
 </head>
 <body>
-    <!-- Fixed Header - DuoHaeDuo Title and Top Navigation Tabs -->
-    <div id="game-tabs" class="game-tab-container">
-        <div class="header-title">듀오해듀오</div>
-        <div class="flex items-center">
-            <div class="relative group">
-                <button id="game-select-btn" class="game-select-btn">게임 선택</button>
-                <div id="game-dropdown-menu" class="game-dropdown-menu">
-                    <button class="dropdown-game-item" data-game-name="리그 오브 레전드" data-game-id="LoL">리그 오브 레전드</button>
-                    <button class="dropdown-game-item" data-game-name="오버워치 2" data-game-id="Overwatch">오버워치 2</button>
-                    <button class="dropdown-game-item" data-game-name="발로란트" data-game-id="Valorant">발로란트</button>
+    <header class="site-header">
+        <div class="container">
+            <h1 class="logo">듀오해듀오</h1>
+            <nav class="main-nav">
+                <a href="index.html" class="active">홈</a>
+                <a href="community.html" id="community-link-main">커뮤니티</a>
+                <a href="#" id="lol-search-link-main">롤 전적검색</a>
+                <a href="#" id="my-profile-link-main">내 프로필</a>
+            </nav>
+            <button class="login-btn">로그인</button>
+        </div>
+    </header>
+
+    <main>
+        <section class="hero-section">
+            <div class="container">
+                <h2>함께할 때 더 즐거운 게임,</h2>
+                <h1>지금 바로 듀오를 찾아보세요!</h1>
+                <p>나와 딱 맞는 게임 친구를 3초 만에 찾아드려요.</p>
+                <div class="main-actions">
+                    <button class="action-btn primary-action"># 지금 바로 듀오 찾기</button>
+                    <button class="action-btn secondary-action"># 조건에 맞는 친구 찾기</button>
                 </div>
             </div>
-            <button id="my-profile-top-nav-btn" class="top-nav-tab">내 프로필</button>
-            <button id="my-chat-history-top-nav-btn" class="top-nav-tab">내 채팅 기록</button>
+        </section>
+
+        <section class="featured-players-section">
+            <div class="container">
+                <h3 class="section-title">✨ 지금 접속 중인 플레이어</h3>
+                <div id="player-list" class="player-grid">
+                    <!-- Player cards will be populated by script.js -->
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <div id="modal" class="modal-container" style="display: none;">
+        <div class="modal-content">
+            <button class="modal-close-btn">&times;</button>
+            <div id="modal-body">
+                <!-- Modal content will be populated by script.js -->
+            </div>
         </div>
     </div>
 
-    <div class="container">
-        <!-- Main Section Tabs (now for content navigation) -->
-        <div id="main-section-tabs" class="main-section-tab-container">
-            <button id="find-friend-tab-btn" class="main-section-tab-btn active" data-section="recommended-profiles-section">친구 찾기</button>
-            <button id="match-now-tab-btn" class="main-section-tab-btn" data-section="match-now-section">지금 매칭</button>
-            <button id="game-strategy-tab-btn" class="main-section-tab-btn" data-section="game-strategy-section">✨ 게임 전략 & 팁</button>
-        </div>
-
-        <!-- Recommended Profiles Section (Default Main View) -->
-        <div id="recommended-profiles-section">
-            <h2 class="section-title">추천 프로필</h2>
-            <div id="recommended-profile-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                <!-- Recommended profiles will be injected here by JS -->
-            </div>
-        </div>
-
-        <!-- Profile Settings Section -->
-        <div id="profile-section" class="hidden">
-            <h2 class="section-title">내 프로필 설정</h2>
-            <div class="flex flex-col gap-6">
-                <div>
-                    <label for="nickname" class="block text-gray-700 text-lg font-medium mb-2">닉네임</label>
-                    <input type="text" id="nickname" class="input-field" placeholder="당신의 닉네임을 입력하세요">
-                </div>
-                <div>
-                    <label for="game" class="block text-gray-700 text-lg font-medium mb-2">주요 게임</label>
-                    <select id="game" class="input-field">
-                        <option value="LoL">리그 오브 레전드 (LoL)</option>
-                        <option value="Overwatch">오버워치 2</option>
-                        <option value="Valorant">발로란트</option>
-                        <option value="PUBG">배틀그라운드</option>
-                        <option value="FC Online">FC 온라인</option>
-                        <option value="MapleStory">메이플스토리</option>
-                    </select>
-                </div>
-                <div>
-                    <label for="tier" class="block text-gray-700 text-lg font-medium mb-2">티어 (실력)</label>
-                    <select id="tier" class="input-field">
-                        <option value="Iron">아이언</option>
-                        <option value="Bronze">브론즈</option>
-                        <option value="Silver">실버</option>
-                        <option value="Gold">골드</option>
-                        <option value="Platinum">플래티넘</option>
-                        <option value="Diamond">다이아몬드</option>
-                        <option value="Master">마스터</option>
-                        <option value="Grandmaster">그랜드마스터</option>
-                        <option value="Challenger">챌린저</option>
-                    </select>
-                </div>
-                <div>
-                    <label for="preferred-role" class="block text-gray-700 text-lg font-medium mb-2">선호 포지션</label>
-                    <input type="text" id="preferred-role" class="input-field" placeholder="예: 미드, 서포터">
-                </div>
-                <div>
-                    <label for="play-style" class="block text-gray-700 text-lg font-medium mb-2">플레이 스타일</label>
-                    <input type="text" id="play-style" class="input-field" placeholder="예: 공격적, 안정적, 소통 위주">
-                </div>
-                <div>
-                    <label for="region" class="block text-gray-700 text-lg font-medium mb-2">지역 (선택 사항)</label>
-                    <input type="text" id="region" class="input-field" placeholder="예: 서울 강남구">
-                </div>
-                <div>
-                    <label for="game-id" class="block text-gray-700 text-lg font-medium mb-2">게임 ID</label>
-                    <input type="text" id="game-id" class="input-field" placeholder="게임 내 닉네임 또는 ID를 입력하세요">
-                </div>
-                
-                <!-- New AI Profile Bio Generator Feature -->
-                <div class="mt-6">
-                    <label for="ai-generated-bio" class="block text-gray-700 text-lg font-medium mb-2">✨ AI 프로필 문구</label>
-                    <textarea id="ai-generated-bio" class="input-field h-32 resize-none" placeholder="AI가 생성한 프로필 문구가 여기에 표시됩니다." readonly></textarea>
-                    <button id="generate-bio-btn" class="btn btn-primary w-full mt-4">✨ AI 프로필 문구 생성</button>
-                    <div id="bio-loading-spinner" class="hidden loading-spinner w-10 h-10 mt-4"></div>
-                </div>
-
-                <button id="save-profile-btn" class="btn btn-primary mt-6">프로필 저장</button>
-            </div>
-            <button id="back-to-main-from-profile" class="btn btn-secondary mt-8">메인으로 돌아가기</button>
-        </div>
-
-        <!-- Find Friend Section (Now controlled by main-section-tabs) -->
-        <div id="find-friend-section" class="hidden">
-            <h2 class="section-title">친구 찾기</h2>
-            <div id="friend-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-8">
-                <!-- Mock friend profiles will be injected here by JS -->
-            </div>
-            <button id="back-to-main-from-find" class="btn btn-secondary">메인으로 돌아가기</button>
-        </div>
-
-        <!-- Match Now Section -->
-        <div id="match-now-section" class="hidden">
-            <h2 class="section-title">지금 매칭</h2>
-            <p class="text-xl text-gray-600 text-center mb-10">당신의 프로필을 기반으로 최적의 파트너 또는 팀을 찾아드립니다.</p>
-            <!-- 매칭 조건 설정 UI -->
-            <div class="mb-6 flex flex-col md:flex-row gap-4 items-center justify-center">
-                <div>
-                    <label for="match-tier" class="block text-gray-700 text-base font-medium mb-1">티어</label>
-                    <select id="match-tier" class="input-field w-32">
-                        <option value="">전체</option>
-                        <option value="Iron">아이언</option>
-                        <option value="Bronze">브론즈</option>
-                        <option value="Silver">실버</option>
-                        <option value="Gold">골드</option>
-                        <option value="Platinum">플래티넘</option>
-                        <option value="Diamond">다이아몬드</option>
-                        <option value="Master">마스터</option>
-                        <option value="Grandmaster">그랜드마스터</option>
-                        <option value="Challenger">챌린저</option>
-                    </select>
-                </div>
-                <div>
-                    <label for="match-role" class="block text-gray-700 text-base font-medium mb-1">포지션</label>
-                    <input type="text" id="match-role" class="input-field w-32" placeholder="예: 미드, 서포터">
-                </div>
-                <div>
-                    <label for="match-region" class="block text-gray-700 text-base font-medium mb-1">지역</label>
-                    <input type="text" id="match-region" class="input-field w-32" placeholder="예: 서울 강남구">
-                </div>
-            </div>
-            <button id="start-matching-btn" class="btn btn-primary w-full">매칭 시작</button>
-
-            <div id="matching-status" class="hidden mt-10 text-center">
-                <div class="loading-spinner"></div>
-                <p class="text-gray-700 text-xl mt-5">매칭 중입니다... 잠시만 기다려주세요.</p>
-            </div>
-
-            <div id="matching-result" class="hidden mt-10 p-10 bg-green-50 border border-green-200 rounded-2xl text-center shadow-xl">
-                <h3 class="text-3xl font-bold text-green-700 mb-5">매칭 성공! 🎉</h3>
-                <p class="text-gray-800 text-xl">최적의 파트너를 찾았습니다!</p>
-                <div id="matched-partner-info" class="mt-8 text-left p-8 bg-white rounded-xl shadow-lg border border-gray-100">
-                    <!-- Matched partner info will be injected here -->
-                </div>
-                <button id="start-chat-matched" class="btn btn-primary mt-10 w-full">채팅 시작</button>
-            </div>
-            <button id="back-to-main-from-match" class="btn btn-secondary mt-8">메인으로 돌아가기</button>
-
-            <div id="review-section" class="hidden mt-8">
-                <h3 class="text-xl font-bold mb-2">후기 남기기</h3>
-                <textarea id="review-text" class="input-field w-full h-24 mb-2" placeholder="매칭 상대에 대한 후기를 남겨주세요."></textarea>
-                <button id="submit-review-btn" class="btn btn-primary w-full">후기 등록</button>
-                <div id="review-success-msg" class="text-green-600 font-semibold mt-2 hidden">후기가 등록되었습니다!</div>
-            </div>
-        </div>
-
-        <!-- Game Strategy Section (New Feature) -->
-        <div id="game-strategy-section" class="hidden">
-            <h2 class="section-title">✨ 게임 전략 & 팁</h2>
-            <p class="text-xl text-gray-600 text-center mb-10">
-                현재 프로필을 기반으로 ${userProfile.game} 게임의 전략 팁을 생성합니다.
-            </p>
-            <button id="generate-strategy-btn" class="btn btn-primary w-full">✨ 전략 팁 생성</button>
-
-            <div id="strategy-loading-spinner" class="hidden loading-spinner w-10 h-10 mt-10"></div>
-
-            <div id="strategy-result" class="hidden mt-10 p-10 bg-white border border-gray-200 rounded-2xl text-left shadow-xl">
-                <h3 class="text-2xl font-bold text-gray-800 mb-5">생성된 전략 팁:</h3>
-                <textarea id="generated-strategy-text" class="input-field h-64 resize-none" readonly></textarea>
-            </div>
-            <button id="back-to-main-from-strategy" class="btn btn-secondary mt-8">메인으로 돌아가기</button>
-        </div>
-
-
-        <!-- Chat History Section -->
-        <div id="chat-history-section" class="hidden">
-            <h2 class="section-title">내 채팅 기록</h2>
-            <div id="chat-history-list" class="flex flex-col gap-6">
-                <!-- Chat history items will be injected here -->
-                <div class="profile-card">
-                    <p class="font-bold text-xl text-gray-900">게임고수민수 님</p>
-                    <p class="text-gray-700">마지막 대화: "안녕하세요! 같이 게임하실래요?" (1일 전)</p>
-                    <button class="btn btn-secondary mt-4 chat-btn" data-friend-id="1" data-friend-name="게임고수민수">채팅 계속하기</button>
-                </div>
-                <div class="profile-card">
-                    <p class="font-bold text-xl text-gray-900">즐겜유저하나 님</p>
-                    <p class="text-gray-700">마지막 대화: "네 좋아요! 어떤 챔피언 주로 하시나요?" (3일 전)</p>
-                    <button class="btn btn-secondary mt-4 chat-btn" data-friend-id="2" data-friend-name="즐겜유저하나">채팅 계속하기</button>
-                </div>
-            </div>
-            <button id="back-to-main-from-chat-history" class="btn btn-secondary mt-8">메인으로 돌아가기</button>
-        </div>
-
-
-        <!-- Chat Modal (simplified as a section for this prototype) -->
-        <div id="chat-modal" class="hidden fixed inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-center p-4 z-50">
-            <div class="bg-white rounded-2xl p-10 w-full max-w-3xl flex flex-col h-full max-h-[90vh] shadow-2xl">
-                <h3 id="chat-partner-name" class="text-3xl font-bold text-gray-800 mb-8 border-b pb-5"></h3>
-                <div id="chat-messages" class="flex-1 overflow-y-auto mb-8 p-6 border border-gray-200 rounded-xl bg-gray-50 flex flex-col">
-                    <!-- Chat messages will appear here -->
-                </div>
-                <div class="flex gap-4">
-                    <input type="text" id="chat-input" class="input-field flex-1" placeholder="메시지를 입력하세요...">
-                    <button id="send-chat-btn" class="btn btn-primary px-8 py-4">전송</button>
-                </div>
-                <button id="close-chat-btn" class="btn btn-secondary mt-8">닫기</button>
-            </div>
-        </div>
-
-    </div>
-
-    <!-- External JavaScript file -->
     <script src="script.js"></script>
 </body>
-</html> 
+</html>
